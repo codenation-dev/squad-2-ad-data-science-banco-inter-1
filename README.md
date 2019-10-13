@@ -13,9 +13,9 @@
 3. Vincule o projeto ao repositório do Squad
 	* `git init`
 	* `git remote add origin https://github.com/codenation-dev/squad-2-ad-data-science-banco-inter-1.git`
-	* `git pull`
+	* `git push -u origin master`
 
 4. Instale as dependencias do projeto
 	* `pip install -r requirements.txt`
-    
+
 ---
