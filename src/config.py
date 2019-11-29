@@ -3,12 +3,33 @@
 
 class Configure:
     def __init__(self):
+        self.pf1_folder = '../data/estaticos_portfolio1.csv'
+        self.pf2_folder = '../data/estaticos_portfolio2.csv'
+        self.pf3_folder = '../data/estaticos_portfolio3.csv'
+        self.mkt_folder = '../data/estaticos_market.csv'
         self.pre_processing_params = {}
         self.feature_selection_params = {}
         self.model_params = {}
         self.evaluation_params = {}
 
     def set_pre_processing_params(self):
+        manual_enconding = {'de_saude_tributaria': {
+                             'VERDE': 0,
+                             'AZUL': 1,
+                             'AMARELO': 2,
+                             'CINZA': 3,
+                             'LARANJA': 4,
+                             'VERMELHO': 5},
+                            'de_nivel_atividade': {
+                             'MUITO BAIXA': 0,
+                             'BAIXA': 1,
+                             'MEDIA': 2,
+                             'ALTA': 3}
+                            }
+
+
+
+    def set_fs_params(self):
         d = {'threshold': 0.7,
              'EDA': ['fl_epp',
                      'qt_socios_pf',
@@ -25,7 +46,7 @@ class Configure:
                      'fl_me',
                      'fl_email',
                      'nu_meses_rescencia',
-                     'fl_st_especial'
+                     'fl_st_especial',
                      'sg_uf',
                      'sg_uf_matriz',
                      'nm_micro_regiao',
@@ -34,5 +55,5 @@ class Configure:
                      'de_natureza_juridica',
                      'setor']
              }
-        self.pre_processing_params = d
+        self.feature_selection_params = d
 
