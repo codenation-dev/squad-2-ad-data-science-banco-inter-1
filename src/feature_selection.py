@@ -5,6 +5,8 @@ import pandas as pd
 from config import Configure
 from preprocessing import Preprocessing
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class FeatureSelection:
     def __init__(self, mkt,  df1, df2, df3):
@@ -25,11 +27,12 @@ class FeatureSelection:
         self.df1['target'] = np.ones(self.df1.shape[0]).astype(np.int)
         self.df2['target'] = 2*np.ones(self.df2.shape[0]).astype(np.int)
         self.df3['target'] = 3*np.ones(self.df3.shape[0]).astype(np.int)
-        concat_df = [self.df3, self.df2, self.df3]
+        concat_df = [self.df1, self.df2, self.df3]
         concat_df = pd.concat(concat_df, ignore_index=True)
         concat_df.drop(self.columns_chosen+['Unnamed: 0_x', 'Unnamed: 0_y', 'id'],
                        axis=1,
                        inplace=True)
+        del self.mkt
         return concat_df
 
 
@@ -40,19 +43,26 @@ def main():
     df2 = pd.read_csv(settings.pf2_folder)
     df3 = pd.read_csv(settings.pf3_folder)
     mkt = pd.read_csv(settings.mkt_folder)
-    test = FeatureSelection(df1=df1, df2=df2, df3=df3, mkt=mkt)
-    test.eda_nan_columns(settings.feature_selection_params)
-    columns_type = test.drop_columns().dtypes
-    cat_features = columns_type[columns_type == 'object']
-    num_features = columns_type[columns_type != 'object']
+    data = FeatureSelection(df1=df1, df2=df2, df3=df3, mkt=mkt)
+    data.eda_nan_columns(settings.feature_selection_params)
+    data = data.drop_columns()
+    y = data['target'].values
+    X = data.drop(['target', 'Unnamed: 0'], axis=1)
+    columns_type = X.dtypes
+    manual_features = ['de_saude_tributaria', 'de_nivel_atividade']
+    date_features = ['dt_situacao']
+    cat_features = columns_type[(columns_type == 'object')].keys()
+    cat_features = cat_features.drop(manual_features+date_features)
+    bool_features = columns_type[(columns_type == 'bool')].keys()
+    num_features = columns_type[(columns_type != 'object') & (columns_type != 'bool')].keys()
+    X[bool_features] = X[bool_features].astype('category')
     pre_process = Preprocessing(cat_vars=cat_features,
                                 num_vars=num_features,
-                                date_vars=[],
-                                manual_vars=[])
-    pre_process.pipe_lines_creating()
-    print(pre_process.preprocess.fit_transform(test.drop_columns()))
+                                bool_vars=bool_features,
+                                manual_vars=manual_features,
+                                date_vars=date_features)
 
-
+    pre_process.feature_selection_apply(X, y)
 
 
 if __name__ == '__main__':

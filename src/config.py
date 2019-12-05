@@ -13,7 +13,7 @@ class Configure:
         self.evaluation_params = {}
 
     def set_pre_processing_params(self):
-        manual_enconding = {'de_saude_tributaria': {
+        manual_encoding = {'de_saude_tributaria': {
                              'VERDE': 0,
                              'AZUL': 1,
                              'AMARELO': 2,
@@ -26,8 +26,7 @@ class Configure:
                              'MEDIA': 2,
                              'ALTA': 3}
                             }
-
-
+        self.pre_processing_params['manual_encoding'] = manual_encoding
 
     def set_fs_params(self):
         d = {'threshold': 0.7,
