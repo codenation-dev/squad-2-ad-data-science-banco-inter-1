@@ -58,26 +58,6 @@ class ManualEncoding(BaseEstimator, TransformerMixin):
         return x.values
 
 
-class DateEncoder(BaseEstimator, TransformerMixin):
-        # Class Constructor
-    def __init__(self, feature_names=[]):
-        self._feature_names = feature_names
-
-            # Return self nothing else to do here
-
-    def fit(self, X, y=None):
-        return self
-
-
-        # Method that describes what we need this transformer to do
-
-    def transform(self, X, y=None):
-        x = X
-        x = np.array(list((map(lambda i: i.split('-'), x)))).astype(np.float)
-        return np.exp(x[:, 0]-2018)
-        #series = X.copy()
-        #series.split('-').apply(lambda x: x[0])
-        #return np.exp(series.astype('float')-2019)
 
 
 
@@ -85,12 +65,12 @@ from config import Configure
 
 
 class Preprocessing:
-    def __init__(self, cat_vars, num_vars, bool_vars, manual_vars, date_vars):
+    def __init__(self, cat_vars, num_vars, bool_vars, manual_vars):
         self.cat_vars = cat_vars
         self.num_vars = num_vars
         self.bool_vars = bool_vars
         self.manual_vars = manual_vars
-        self.date_vars = date_vars
+
 
     def pipe_lines_creating(self):
         categorical_pipeline = Pipeline(steps=[('cat_selector', FeatureSelector(self.cat_vars)),
@@ -104,27 +84,25 @@ class Preprocessing:
         num_pipeline = Pipeline(steps=[('num_selector', FeatureSelector(self.num_vars)),
                                        ('num_imputer', SimpleImputer(strategy='median')),
                                        ('scaler', StandardScaler())])
-        date_pipeline = Pipeline(steps=[('date_selector', FeatureSelector(self.date_vars)),
-                                        ('date_imputer', SimpleImputer(strategy='most_frequent')),
-                                        ('date_encoder', DateEncoder())])
         return FeatureUnion(transformer_list=[('manual_pipeline', manual_pipeline),
                                                    ('categorical_pipeline', categorical_pipeline),
                                                    ('bool_pipeline', bool_pipeline),
-                                                   ('numerical_pipeline', num_pipeline),
-                                                   ('date_pipeline', date_pipeline)])
+                                                   ('numerical_pipeline', num_pipeline)])
 
     def feature_selection_apply(self, X, y):
+        columns = X.columns
         feature_pipeline = self.pipe_lines_creating()
         x = feature_pipeline.fit_transform(X)
         clf = RandomForestClassifier(random_state=101)
         rfe_cv = RFECV(estimator=clf, step=1, cv=StratifiedKFold(10), scoring='accuracy')
         rfe_cv.fit(x, y)
+        important_columns = columns[rfe_cv.support_]
         dset = pd.DataFrame()
-        dset['attr'] = X.columns
+        dset['attr'] = important_columns
         dset['importance'] = rfe_cv.estimator_.feature_importances_
         dset = dset.sort_values(by='importance', ascending=False)
-        dset = dset[dset['importance']>0.01]
-        print(dset)
+        dset = dset[dset['importance'] > 0.01]
+        return dset['attr']
 
 
 
