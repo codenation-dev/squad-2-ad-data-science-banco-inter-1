@@ -102,7 +102,8 @@ class Preprocessing:
         dset['importance'] = rfe_cv.estimator_.feature_importances_
         dset = dset.sort_values(by='importance', ascending=False)
         dset = dset[dset['importance'] > 0.01]
-        return dset['attr']
+        scores = rfe_cv.grid_scores_
+        return scores, dset['attr']
 
 
 
