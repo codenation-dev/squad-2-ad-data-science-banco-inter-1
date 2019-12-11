@@ -53,7 +53,8 @@ class Configure:
                      'nm_segmento',
                      'nm_divisao',
                      'de_natureza_juridica',
-                     'setor']
+                     #'setor'
+                     'de_ramo']
              }
         self.feature_selection_params = d
 
