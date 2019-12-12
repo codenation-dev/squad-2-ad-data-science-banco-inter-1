@@ -89,21 +89,41 @@ class Preprocessing:
                                                    ('bool_pipeline', bool_pipeline),
                                                    ('numerical_pipeline', num_pipeline)])
 
-    def feature_selection_apply(self, X, y):
+    def feature_selection_apply(self, X, y, method):
         columns = X.columns
         feature_pipeline = self.pipe_lines_creating()
         x = feature_pipeline.fit_transform(X)
-        clf = RandomForestClassifier(random_state=101)
-        rfe_cv = RFECV(estimator=clf, step=1, cv=StratifiedKFold(10), scoring='accuracy')
-        rfe_cv.fit(x, y)
-        important_columns = columns[rfe_cv.support_]
-        dset = pd.DataFrame()
-        dset['attr'] = important_columns
-        dset['importance'] = rfe_cv.estimator_.feature_importances_
-        dset = dset.sort_values(by='importance', ascending=False)
-        dset = dset[dset['importance'] > 0.01]
-        scores = rfe_cv.grid_scores_
-        return scores, dset['attr']
+        if method == 'RFECV':
+            clf = RandomForestClassifier(random_state=101)
+            rfe_cv = RFECV(estimator=clf, step=1, cv=StratifiedKFold(10), scoring='accuracy')
+            rfe_cv.fit(x, y)
+            important_columns = columns[rfe_cv.support_]
+            dset = pd.DataFrame()
+            dset['attr'] = important_columns
+            dset['importance'] = rfe_cv.estimator_.feature_importances_
+            dset = dset.sort_values(by='importance', ascending=False)
+            dset = dset[dset['importance'] > 0.01]
+            scores = rfe_cv.grid_scores_
+            attr = dset['attr']
+        elif method == 'LASSO':
+            from metodo_eilert_V3 import metodo_eilert
+            from sklearn.linear_model import LogisticRegression
+            x = pd.DataFrame(x, columns=columns)
+            x.drop('Unnamed: 0', axis =1, inplace=True)
+            clf = LogisticRegression(solver='lbfgs')
+            df = metodo_eilert(x,
+                               y.values,
+                               clf,
+                               x.shape[1],
+                               "AUROC")
+            scores = df['AUROC'].values
+            scores = scores[0:scores.argmax()]
+            attr = df['Variavel'].values[0:scores.argmax()]
+        else:
+            print('Invalid method')
+            scores = []
+            attr = []
+        return scores, attr
 
 
 

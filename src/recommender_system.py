@@ -13,7 +13,7 @@ df2 = pd.read_csv(settings.pf2_folder)
 df3 = pd.read_csv(settings.pf3_folder)
 mkt = pd.read_csv(settings.mkt_folder)
 fs = FeatureSelection(mkt,  df1, df2, df3, pp_params, fs_params)
-values, features = fs.feature_selection_algorithm()
+values, features = fs.feature_selection_algorithm(m='RFECV')
 columns = features.values[features.values != 'Unnamed: 0']
 mkt = mkt[columns]
 

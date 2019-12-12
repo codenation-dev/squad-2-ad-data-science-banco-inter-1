@@ -41,7 +41,7 @@ class FeatureSelection:
         self.X = concat_df.drop(['target'], axis=1)
         self.y = concat_df['target']
 
-    def feature_selection_algorithm(self):
+    def feature_selection_algorithm(self, m):
         self.eda_nan_columns_drop()
         self.drop_columns()
         manual_features = self.pp_params['manual_encoding'].keys()
@@ -56,7 +56,7 @@ class FeatureSelection:
                                     bool_vars=bool_features,
                                     manual_vars=manual_features)
 
-        return pre_process.feature_selection_apply(self.X, self.y)
+        return pre_process.feature_selection_apply(self.X, self.y, method=m)
 
     # def feature_selection_method():
     #     #data = FeatureSelection(df1=self.df1 df2=self.df2, df3=self.df3, mkt=self.mkt)
