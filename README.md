@@ -3,12 +3,12 @@
 ## Setando o ambiente virtual
 
 1. Instale o virtualenv e crie o ambiente virtual
-    * `conda install virtualenv`
+    * `pip install virtualenv`
     * `virtualenv projetoFinal`
 
 2. Ative o ambiente virtual criado
     * `cd projetoFinal`
-    * `git source bin/activate`
+    * `source bin/activate`
 
 3. Vincule o projeto ao repositório do Squad
 	* `git init`
